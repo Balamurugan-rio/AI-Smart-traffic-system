@@ -1,0 +1,857 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Traffic Management System</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #0a0e27 0%, #1a1f3a 50%, #0d1b2a 100%);
+            color: #e0e0e0;
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        /* Animated background */
+        .animated-bg {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: 
+                radial-gradient(circle at 20% 50%, rgba(0, 212, 255, 0.1) 0%, transparent 50%),
+                radial-gradient(circle at 80% 80%, rgba(0, 255, 136, 0.1) 0%, transparent 50%);
+            animation: bgShift 15s ease-in-out infinite;
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        @keyframes bgShift {
+            0%, 100% {
+                transform: translate(0, 0);
+            }
+            50% {
+                transform: translate(30px, 30px);
+            }
+        }
+
+        .container {
+            position: relative;
+            z-index: 1;
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        /* Header */
+        .header {
+            text-align: center;
+            margin-bottom: 50px;
+            padding: 40px 20px;
+            background: rgba(10, 14, 39, 0.5);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            border: 1px solid rgba(0, 212, 255, 0.2);
+            animation: slideDown 0.8s ease-out;
+        }
+
+        @keyframes slideDown {
+            from {
+                opacity: 0;
+                transform: translateY(-30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .logo-icon {
+            width: 60px;
+            height: 60px;
+            background: linear-gradient(135deg, #00d4ff, #00ff88);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 30px;
+            color: #0a0e27;
+            box-shadow: 0 0 30px rgba(0, 212, 255, 0.5);
+            animation: pulse 2s ease-in-out infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% {
+                box-shadow: 0 0 30px rgba(0, 212, 255, 0.5);
+            }
+            50% {
+                box-shadow: 0 0 60px rgba(0, 212, 255, 0.8), 0 0 100px rgba(0, 255, 136, 0.4);
+            }
+        }
+
+        h1 {
+            font-size: 3.5em;
+            background: linear-gradient(135deg, #00d4ff, #00ff88);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            text-shadow: 0 0 30px rgba(0, 212, 255, 0.3);
+            margin-bottom: 10px;
+        }
+
+        .subtitle {
+            font-size: 1.2em;
+            color: #a0a0a0;
+            font-weight: 300;
+        }
+
+        /* Main content grid */
+        .content {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+            margin-bottom: 30px;
+        }
+
+        @media (max-width: 1024px) {
+            .content {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        /* Card styles */
+        .card {
+            background: rgba(26, 31, 58, 0.6);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(0, 212, 255, 0.3);
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+            transition: all 0.3s ease;
+            animation: fadeIn 0.6s ease-out;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .card:hover {
+            border-color: rgba(0, 212, 255, 0.6);
+            box-shadow: 0 8px 32px rgba(0, 212, 255, 0.2), 0 0 60px rgba(0, 212, 255, 0.1);
+            transform: translateY(-5px);
+        }
+
+        .card h2 {
+            color: #00d4ff;
+            margin-bottom: 20px;
+            font-size: 1.8em;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        /* Upload section */
+        .upload-area {
+            border: 2px dashed rgba(0, 212, 255, 0.5);
+            border-radius: 15px;
+            padding: 50px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin: 20px 0;
+            background: rgba(0, 212, 255, 0.05);
+        }
+
+        .upload-area:hover {
+            border-color: rgba(0, 212, 255, 0.8);
+            background: rgba(0, 212, 255, 0.1);
+        }
+
+        .upload-area.dragover {
+            border-color: rgba(0, 255, 136, 0.8);
+            background: rgba(0, 255, 136, 0.15);
+            transform: scale(1.02);
+        }
+
+        .upload-icon {
+            font-size: 3em;
+            color: #00d4ff;
+            margin-bottom: 15px;
+            display: block;
+        }
+
+        .upload-text {
+            font-size: 1.1em;
+            color: #a0a0a0;
+            margin-bottom: 10px;
+        }
+
+        .file-input {
+            display: none;
+        }
+
+        /* Button styles */
+        .btn {
+            background: linear-gradient(135deg, #00d4ff, #00ff88);
+            color: #0a0e27;
+            border: none;
+            padding: 12px 30px;
+            border-radius: 10px;
+            font-size: 1em;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            box-shadow: 0 4px 20px rgba(0, 212, 255, 0.3);
+            margin: 10px 5px;
+        }
+
+        .btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 6px 30px rgba(0, 212, 255, 0.6), 0 0 40px rgba(0, 255, 136, 0.3);
+        }
+
+        .btn:active {
+            transform: translateY(-1px);
+        }
+
+        .btn-secondary {
+            background: rgba(0, 212, 255, 0.2);
+            color: #00d4ff;
+            border: 1px solid rgba(0, 212, 255, 0.5);
+        }
+
+        .btn-secondary:hover {
+            background: rgba(0, 212, 255, 0.3);
+            border-color: rgba(0, 212, 255, 0.8);
+        }
+
+        .btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        /* Loading spinner */
+        .loading-spinner {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid rgba(0, 212, 255, 0.3);
+            border-radius: 50%;
+            border-top-color: #00d4ff;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        /* Results section */
+        .results-section {
+            display: none;
+            animation: fadeIn 0.6s ease-out;
+        }
+
+        .results-section.active {
+            display: block;
+        }
+
+        /* Analytics grid */
+        .analytics-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin: 20px 0;
+        }
+
+        .metric-card {
+            background: rgba(0, 212, 255, 0.1);
+            border: 1px solid rgba(0, 212, 255, 0.3);
+            border-radius: 12px;
+            padding: 15px;
+            text-align: center;
+            transition: all 0.3s ease;
+        }
+
+        .metric-card:hover {
+            background: rgba(0, 212, 255, 0.2);
+            border-color: rgba(0, 212, 255, 0.6);
+            transform: translateY(-3px);
+        }
+
+        .metric-label {
+            font-size: 0.9em;
+            color: #a0a0a0;
+            margin-bottom: 8px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .metric-value {
+            font-size: 2em;
+            color: #00ff88;
+            font-weight: bold;
+        }
+
+        .metric-unit {
+            font-size: 0.8em;
+            color: #a0a0a0;
+            margin-left: 5px;
+        }
+
+        /* Traffic level indicator */
+        .traffic-level {
+            display: inline-block;
+            padding: 10px 20px;
+            border-radius: 25px;
+            font-weight: bold;
+            text-transform: uppercase;
+            margin: 15px 0;
+        }
+
+        .traffic-level.low {
+            background: rgba(0, 255, 136, 0.2);
+            color: #00ff88;
+            border: 1px solid rgba(0, 255, 136, 0.5);
+        }
+
+        .traffic-level.medium {
+            background: rgba(255, 193, 7, 0.2);
+            color: #ffc107;
+            border: 1px solid rgba(255, 193, 7, 0.5);
+        }
+
+        .traffic-level.heavy {
+            background: rgba(255, 76, 76, 0.2);
+            color: #ff4c4c;
+            border: 1px solid rgba(255, 76, 76, 0.5);
+        }
+
+        /* AI Decision Panel */
+        .ai-decision {
+            background: linear-gradient(135deg, rgba(0, 212, 255, 0.15), rgba(0, 255, 136, 0.1));
+            border: 1px solid rgba(0, 212, 255, 0.4);
+            border-radius: 12px;
+            padding: 20px;
+            margin: 20px 0;
+            border-left: 4px solid #00d4ff;
+        }
+
+        .ai-decision-label {
+            color: #00d4ff;
+            font-weight: bold;
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .ai-decision-text {
+            color: #e0e0e0;
+            line-height: 1.6;
+            font-size: 1.05em;
+        }
+
+        /* Processed image */
+        .image-container {
+            position: relative;
+            border-radius: 15px;
+            overflow: hidden;
+            box-shadow: 0 8px 32px rgba(0, 212, 255, 0.2);
+            border: 1px solid rgba(0, 212, 255, 0.3);
+        }
+
+        .processed-image {
+            width: 100%;
+            height: auto;
+            display: block;
+        }
+
+        /* Button group */
+        .button-group {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            justify-content: center;
+            margin: 20px 0;
+        }
+
+        /* Status messages */
+        .status-message {
+            padding: 15px;
+            border-radius: 10px;
+            margin: 15px 0;
+            display: none;
+            animation: slideIn 0.4s ease-out;
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateX(-20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+
+        .status-message.active {
+            display: block;
+        }
+
+        .status-success {
+            background: rgba(0, 255, 136, 0.2);
+            border: 1px solid rgba(0, 255, 136, 0.5);
+            color: #00ff88;
+        }
+
+        .status-error {
+            background: rgba(255, 76, 76, 0.2);
+            border: 1px solid rgba(255, 76, 76, 0.5);
+            color: #ff4c4c;
+        }
+
+        .status-info {
+            background: rgba(0, 212, 255, 0.2);
+            border: 1px solid rgba(0, 212, 255, 0.5);
+            color: #00d4ff;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            h1 {
+                font-size: 2em;
+            }
+
+            .analytics-grid {
+                grid-template-columns: 1fr 1fr;
+            }
+
+            .button-group {
+                justify-content: space-around;
+            }
+
+            .btn {
+                flex: 1;
+                min-width: 120px;
+            }
+        }
+
+        /* Footer */
+        .footer {
+            text-align: center;
+            margin-top: 50px;
+            padding: 20px;
+            color: #707070;
+            border-top: 1px solid rgba(0, 212, 255, 0.2);
+        }
+
+        .footer-text {
+            font-size: 0.9em;
+        }
+
+        /* Prevent text selection on buttons */
+        .btn, .card {
+            user-select: none;
+        }
+    </style>
+</head>
+<body>
+    <!-- Animated Background -->
+    <div class="animated-bg"></div>
+
+    <!-- Main Container -->
+    <div class="container">
+        <!-- Header -->
+        <div class="header">
+            <div class="logo">
+                <div class="logo-icon">
+                    <i class="fas fa-traffic-light"></i>
+                </div>
+                <div>
+                    <h1>TrafficAI</h1>
+                    <p class="subtitle">Intelligent Traffic Management System</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Main Content -->
+        <div class="content">
+            <!-- Upload Card -->
+            <div class="card">
+                <h2><i class="fas fa-cloud-upload-alt"></i> Upload Traffic Data</h2>
+                
+                <div class="upload-area" id="uploadArea">
+                    <i class="fas fa-image upload-icon"></i>
+                    <p class="upload-text">Upload Traffic Image or Video</p>
+                    <p style="color: #707070; font-size: 0.9em;">Drag & drop or click to select</p>
+                    <p style="color: #505050; font-size: 0.8em; margin-top: 10px;">
+                        Supported: JPG, PNG, MP4, AVI, MOV, MKV (Max 50MB)
+                    </p>
+                </div>
+
+                <input type="file" id="fileInput" class="file-input" accept="image/*,video/*">
+
+                <div class="button-group">
+                    <button class="btn" id="uploadBtn" onclick="document.getElementById('fileInput').click()">
+                        <i class="fas fa-folder-open"></i> Select File
+                    </button>
+                </div>
+
+                <div id="uploadStatus" class="status-message"></div>
+            </div>
+
+            <!-- Processing & Results Card -->
+            <div class="card">
+                <h2><i class="fas fa-microscope"></i> AI Analysis Results</h2>
+
+                <div id="processingSection" style="text-align: center; color: #a0a0a0;">
+                    <p>Upload a file to begin analysis</p>
+                </div>
+
+                <div id="resultsSection" class="results-section">
+                    <!-- Traffic Level Indicator -->
+                    <div id="trafficLevelDiv"></div>
+
+                    <!-- Analytics Grid -->
+                    <div class="analytics-grid" id="analyticsGrid"></div>
+
+                    <!-- AI Decision Panel -->
+                    <div class="ai-decision">
+                        <div class="ai-decision-label">
+                            <i class="fas fa-lightbulb"></i> AI Recommendation
+                        </div>
+                        <div class="ai-decision-text" id="aiDecisionText"></div>
+                    </div>
+
+                    <!-- Report Buttons -->
+                    <div class="button-group">
+                        <button class="btn btn-secondary" id="pdfReportBtn">
+                            <i class="fas fa-file-pdf"></i> Download PDF
+                        </button>
+                        <button class="btn btn-secondary" id="csvReportBtn">
+                            <i class="fas fa-file-csv"></i> Download CSV
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Processed Image -->
+        <div class="card" id="imageCardDiv" style="display: none;">
+            <h2><i class="fas fa-image"></i> Processed Traffic Analysis</h2>
+            <div class="image-container">
+                <img id="processedImage" class="processed-image" alt="Processed traffic image">
+            </div>
+        </div>
+
+        <!-- Footer -->
+        <div class="footer">
+            <p class="footer-text">🚗 AI Traffic Management System • Powered by Advanced Computer Vision & Machine Learning</p>
+        </div>
+    </div>
+
+    <!-- JavaScript -->
+    <script>
+        // Global variables
+        let currentAnalysisId = null;
+        let currentAnalysisData = null;
+        let currentUploadPath = null;
+
+        // DOM Elements
+        const uploadArea = document.getElementById('uploadArea');
+        const fileInput = document.getElementById('fileInput');
+        const uploadBtn = document.getElementById('uploadBtn');
+        const uploadStatus = document.getElementById('uploadStatus');
+        const processingSection = document.getElementById('processingSection');
+        const resultsSection = document.getElementById('resultsSection');
+        const analyticsGrid = document.getElementById('analyticsGrid');
+        const aiDecisionText = document.getElementById('aiDecisionText');
+        const pdfReportBtn = document.getElementById('pdfReportBtn');
+        const csvReportBtn = document.getElementById('csvReportBtn');
+        const processedImage = document.getElementById('processedImage');
+        const imageCardDiv = document.getElementById('imageCardDiv');
+
+        // Drag and drop
+        uploadArea.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            uploadArea.classList.add('dragover');
+        });
+
+        uploadArea.addEventListener('dragleave', () => {
+            uploadArea.classList.remove('dragover');
+        });
+
+        uploadArea.addEventListener('drop', (e) => {
+            e.preventDefault();
+            uploadArea.classList.remove('dragover');
+            const files = e.dataTransfer.files;
+            if (files.length > 0) {
+                fileInput.files = files;
+                handleFileSelect();
+            }
+        });
+
+        // File input change
+        fileInput.addEventListener('change', handleFileSelect);
+
+        // Handle file selection
+        function handleFileSelect() {
+            const file = fileInput.files[0];
+            if (!file) return;
+
+            uploadFile(file);
+        }
+
+        // Upload file
+        async function uploadFile(file) {
+            try {
+                showStatus('Uploading file...', 'info');
+                
+                const formData = new FormData();
+                formData.append('file', file);
+
+                const response = await fetch('/api/upload', {
+                    method: 'POST',
+                    body: formData
+                });
+
+                const data = await response.json();
+
+                if (!response.ok) {
+                    throw new Error(data.error || 'Upload failed');
+                }
+
+                showStatus('✓ File uploaded successfully!', 'success');
+                currentUploadPath = data.upload_path;
+                
+                // Auto-analyze
+                setTimeout(() => analyzeTraffic(data), 500);
+
+            } catch (error) {
+                showStatus(`✗ Error: ${error.message}`, 'error');
+                console.error(error);
+            }
+        }
+
+        // Analyze traffic
+        async function analyzeTraffic(uploadData) {
+            try {
+                showStatus('🔍 Analyzing traffic...', 'info');
+                processingSection.style.display = 'block';
+                resultsSection.classList.remove('active');
+
+                const response = await fetch('/api/analyze', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        upload_path: uploadData.upload_path,
+                        filename: uploadData.filename,
+                        file_type: uploadData.file_type
+                    })
+                });
+
+                const data = await response.json();
+
+                if (!response.ok) {
+                    throw new Error(data.error || 'Analysis failed');
+                }
+
+                currentAnalysisId = data.analysis_id;
+                currentAnalysisData = data.analysis;
+
+                displayResults(data.analysis, data.processed_image);
+                showStatus('✓ Analysis complete!', 'success');
+
+            } catch (error) {
+                showStatus(`✗ Error: ${error.message}`, 'error');
+                console.error(error);
+            }
+        }
+
+        // Display results
+        function displayResults(analysis, processedImage) {
+            processingSection.style.display = 'none';
+            resultsSection.classList.add('active');
+
+            // Display traffic level
+            const trafficLevel = analysis.traffic_level;
+            const trafficLevelDiv = document.getElementById('trafficLevelDiv');
+            trafficLevelDiv.innerHTML = `
+                <div class="traffic-level ${trafficLevel}">
+                    <i class="fas fa-exclamation-circle"></i> ${trafficLevel.toUpperCase()} TRAFFIC
+                </div>
+            `;
+
+            // Display analytics
+            analyticsGrid.innerHTML = `
+                <div class="metric-card">
+                    <div class="metric-label">Total Vehicles</div>
+                    <div class="metric-value">${analysis.total_vehicles}</div>
+                </div>
+                <div class="metric-card">
+                    <div class="metric-label">Traffic Density</div>
+                    <div class="metric-value">${analysis.traffic_density_percentage}<span class="metric-unit">%</span></div>
+                </div>
+                <div class="metric-card">
+                    <div class="metric-label">Signal Duration</div>
+                    <div class="metric-value">${analysis.signal_time_recommendation}<span class="metric-unit">s</span></div>
+                </div>
+                <div class="metric-card">
+                    <div class="metric-label">Waiting Time</div>
+                    <div class="metric-value">${analysis.estimated_waiting_time}<span class="metric-unit">s</span></div>
+                </div>
+                <div class="metric-card">
+                    <div class="metric-label">Cars</div>
+                    <div class="metric-value">${analysis.vehicle_breakdown.car}</div>
+                </div>
+                <div class="metric-card">
+                    <div class="metric-label">Bikes</div>
+                    <div class="metric-value">${analysis.vehicle_breakdown.bike}</div>
+                </div>
+                <div class="metric-card">
+                    <div class="metric-label">Trucks</div>
+                    <div class="metric-value">${analysis.vehicle_breakdown.truck}</div>
+                </div>
+                <div class="metric-card">
+                    <div class="metric-label">Buses</div>
+                    <div class="metric-value">${analysis.vehicle_breakdown.bus}</div>
+                </div>
+            `;
+
+            // Display AI decision
+            aiDecisionText.textContent = analysis.ai_decision;
+
+            // Display processed image
+            if (processedImage) {
+                document.getElementById('processedImage').src = processedImage;
+                imageCardDiv.style.display = 'block';
+            }
+        }
+
+        // Generate PDF report
+        pdfReportBtn.addEventListener('click', async () => {
+            if (!currentAnalysisId) {
+                showStatus('No analysis to report', 'error');
+                return;
+            }
+
+            try {
+                pdfReportBtn.disabled = true;
+                pdfReportBtn.innerHTML = '<div class="loading-spinner"></div>';
+
+                const response = await fetch('/api/report/pdf', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        analysis_id: currentAnalysisId,
+                        analysis: currentAnalysisData,
+                        processed_image_path: null
+                    })
+                });
+
+                const data = await response.json();
+
+                if (!response.ok) {
+                    throw new Error(data.error || 'PDF generation failed');
+                }
+
+                // Download the file
+                window.location.href = data.report_path;
+                showStatus('✓ PDF report generated!', 'success');
+
+            } catch (error) {
+                showStatus(`✗ Error: ${error.message}`, 'error');
+            } finally {
+                pdfReportBtn.disabled = false;
+                pdfReportBtn.innerHTML = '<i class="fas fa-file-pdf"></i> Download PDF';
+            }
+        });
+
+        // Generate CSV report
+        csvReportBtn.addEventListener('click', async () => {
+            if (!currentAnalysisId) {
+                showStatus('No analysis to report', 'error');
+                return;
+            }
+
+            try {
+                csvReportBtn.disabled = true;
+                csvReportBtn.innerHTML = '<div class="loading-spinner"></div>';
+
+                const response = await fetch('/api/report/csv', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        analysis_id: currentAnalysisId,
+                        analysis: currentAnalysisData
+                    })
+                });
+
+                const data = await response.json();
+
+                if (!response.ok) {
+                    throw new Error(data.error || 'CSV generation failed');
+                }
+
+                // Download the file
+                window.location.href = data.report_path;
+                showStatus('✓ CSV report generated!', 'success');
+
+            } catch (error) {
+                showStatus(`✗ Error: ${error.message}`, 'error');
+            } finally {
+                csvReportBtn.disabled = false;
+                csvReportBtn.innerHTML = '<i class="fas fa-file-csv"></i> Download CSV';
+            }
+        });
+
+        // Show status message
+        function showStatus(message, type = 'info') {
+            uploadStatus.textContent = message;
+            uploadStatus.className = `status-message active status-${type}`;
+            
+            if (type === 'success') {
+                setTimeout(() => {
+                    uploadStatus.classList.remove('active');
+                }, 4000);
+            }
+        }
+
+        // Initialize
+        console.log('AI Traffic Management System loaded successfully');
+    </script>
+</body>
+</html>

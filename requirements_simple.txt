@@ -1,0 +1,28 @@
+# Flask and web framework
+Flask==2.3.3
+Flask-CORS==4.0.0
+Werkzeug==2.3.7
+
+# Computer vision
+opencv-python==4.8.1.78
+numpy==1.24.3
+
+# YOLO and ML
+torch==2.0.1
+torchvision==0.15.2
+
+# Image and PDF generation
+Pillow==10.0.0
+reportlab==4.0.7
+
+# Data processing
+pandas==2.0.3
+
+# Database
+SQLAlchemy==2.0.21
+
+# Utilities
+python-dotenv==1.0.0
+
+# Optional: For development
+Werkzeug==2.3.7
