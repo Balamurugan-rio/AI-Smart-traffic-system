@@ -1,28 +1,27 @@
-# Flask and web framework
+# Web Framework
 Flask==2.3.3
-Flask-CORS==4.0.0
-Werkzeug==2.3.7
+Flask-Cors==4.0.0
+Werkzeug==2.3.8
+gunicorn==23.0.0
 
-# Computer vision
-opencv-python==4.8.1.78
-numpy==1.24.3
+# Computer Vision
+opencv-python-headless==4.10.0.84
+numpy==1.26.4
+Pillow==10.4.0
 
-# YOLO and ML
-torch==2.0.1
-torchvision==0.15.2
+# Machine Learning
+torch==2.4.1
+torchvision==0.19.1
+ultralytics==8.3.0
 
-# Image and PDF generation
-Pillow==10.0.0
-reportlab==4.0.7
-
-# Data processing
-pandas==2.0.3
+# Data Processing
+pandas==2.2.2
 
 # Database
-SQLAlchemy==2.0.21
+SQLAlchemy==2.0.36
 
-# Utilities
-python-dotenv==1.0.0
+# Environment Variables
+python-dotenv==1.0.1
 
-# Optional: For development
-Werkzeug==2.3.7
+# PDF Generation
+reportlab==4.2.2
